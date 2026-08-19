@@ -1,4 +1,4 @@
-import formatPrice from '../utils/formatPrice'
+import formatPrice from "../utils/formatPrice";
 
 function CartPanel({
   cartItems,
@@ -11,15 +11,22 @@ function CartPanel({
   onRemove,
   subtotal,
 }) {
-  const shipping = cartItems.length > 0 ? 12 : 0
-  const total = subtotal + shipping
+  const shipping = cartItems.length > 0 ? 12 : 0;
+  const total = subtotal + shipping;
+  const isCartEmpty = cartItems.length === 0;
+  const isSubmitting = checkoutStatus === "submitting";
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    onCheckoutChange(name, value);
+  };
 
   return (
     <div className="checkout-layout">
       <div className="cart-card fade-in">
         <h3>Tu pedido</h3>
 
-        {cartItems.length > 0 ? (
+        {!isCartEmpty ? (
           <div className="cart-list">
             {cartItems.map((item) => (
               <article className="cart-item" key={item.id}>
@@ -30,21 +37,34 @@ function CartPanel({
                       <h4>{item.title}</h4>
                       <p>{item.brand}</p>
                     </div>
-                    <strong>{formatPrice(item.price)}</strong>
+                    <strong>{formatPrice(item.price * item.quantity)}</strong>
                   </div>
 
                   <div className="cart-item__actions">
                     <div className="quantity-group">
-                      <button type="button" className="quantity-button" onClick={() => onDecrease(item.id, -1)}>
+                      <button
+                        type="button"
+                        className="quantity-button"
+                        onClick={() => onDecrease(item.id, 1)}
+                        disabled={item.quantity <= 1}
+                      >
                         -
                       </button>
                       <span>{item.quantity}</span>
-                      <button type="button" className="quantity-button" onClick={() => onIncrease(item.id, 1)}>
+                      <button
+                        type="button"
+                        className="quantity-button"
+                        onClick={() => onIncrease(item.id, 1)}
+                      >
                         +
                       </button>
                     </div>
 
-                    <button type="button" className="favorite-button" onClick={() => onRemove(item.id)}>
+                    <button
+                      type="button"
+                      className="remove-button"
+                      onClick={() => onRemove(item.id)}
+                    >
                       Quitar
                     </button>
                   </div>
@@ -54,7 +74,7 @@ function CartPanel({
           </div>
         ) : (
           <div className="empty-card empty-card--inline">
-            <h3>Aún no agregas productos</h3>
+            <h3>Aún no has agregado productos</h3>
             <p>Cuando elijas algo del catálogo, aparecerá aquí.</p>
           </div>
         )}
@@ -83,8 +103,10 @@ function CartPanel({
             <input
               type="text"
               required
+              name="name"
               value={checkoutForm.name}
-              onChange={(event) => onCheckoutChange('name', event.target.value)}
+              onChange={handleInputChange}
+              disabled={isSubmitting || isCartEmpty}
             />
           </label>
 
@@ -93,8 +115,10 @@ function CartPanel({
             <input
               type="email"
               required
+              name="email"
               value={checkoutForm.email}
-              onChange={(event) => onCheckoutChange('email', event.target.value)}
+              onChange={handleInputChange}
+              disabled={isSubmitting || isCartEmpty}
             />
           </label>
 
@@ -103,35 +127,47 @@ function CartPanel({
             <input
               type="text"
               required
+              name="address"
               value={checkoutForm.address}
-              onChange={(event) => onCheckoutChange('address', event.target.value)}
+              onChange={handleInputChange}
+              disabled={isSubmitting || isCartEmpty}
             />
           </label>
 
           <label>
             Notas del pedido
             <textarea
+              name="notes"
               rows="4"
               value={checkoutForm.notes}
-              onChange={(event) => onCheckoutChange('notes', event.target.value)}
+              onChange={handleInputChange}
+              disabled={isSubmitting || isCartEmpty}
             />
           </label>
 
-          <button type="submit" className="primary-button">
-            Confirmar compra
+          <button
+            type="submit"
+            className="primary-button"
+            disabled={isSubmitting || isCartEmpty}
+          >
+           {isSubmitting ? "Procesando..." : "Confirmar compra"}
           </button>
         </form>
 
-        {checkoutStatus === 'success' && (
-          <p className="feedback-message">Listo. Tu pedido quedó registrado y el carrito volvió a cero.</p>
+        {checkoutStatus === "success" && (
+          <p className="feedback-message">
+            Listo. Tu pedido quedó registrado y el carrito vuelve a cero.
+          </p>
         )}
 
-        {checkoutStatus === 'empty' && (
-          <p className="feedback-message">Primero agrega al menos un producto antes de confirmar.</p>
+        {checkoutStatus === "empty" && (
+          <p className="feedback-message">
+            Primero agrega al menos un producto antes de confirmar.
+          </p>
         )}
       </div>
     </div>
-  )
+  );
 }
 
-export default CartPanel
+export default CartPanel;
