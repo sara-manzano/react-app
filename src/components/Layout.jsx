@@ -3,9 +3,9 @@ import { NavLink, Outlet } from "react-router-dom";
 import { useShop } from "../context/useShop";
 
 const ANNOUNCEMENTS = [
-  "Envio gratis desde 3 EUR",
+  "Envío gratis desde 35 EUR",
   "3x2 en maquillaje seleccionado",
-  "Codigo FLASH10 para un 10% extra hoy",
+  "Codigo FLASH10 para un 10% extra de descuento",
 ];
 
 function Layout() {
